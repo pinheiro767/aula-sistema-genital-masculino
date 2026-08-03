@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#161a1d">
+  <meta name="description" content="Leitor imersivo e acessível de imagens educacionais com zoom, anotações, leitura por voz, OCR e exportação em PDF.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>Atlas Imersivo — Sistema Genital Masculino</title>
+</head>
+<body>
+  <a class="skip-link" href="#viewer">Ir para a imagem</a>
+  <div id="app" class="app-shell">
+    <header class="topbar" aria-label="Barra principal">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">◉</span>
+        <div><strong>Atlas Imersivo</strong><small id="counter">Carregando…</small></div>
+      </div>
+      <div class="top-actions">
+        <button id="readBtn" class="btn" title="Ler página em voz alta" aria-label="Ler página em voz alta">🔊 <span>Ler</span></button>
+        <button id="ocrBtn" class="btn" title="Reconhecer texto da imagem">⌁ <span>OCR</span></button>
+        <button id="pdfBtn" class="btn accent" title="Gerar PDF com anotações">PDF</button>
+        <button id="fullscreenBtn" class="btn icon" title="Tela cheia" aria-label="Alternar tela cheia">⛶</button>
+        <button id="menuBtn" class="btn icon mobile-only" aria-label="Abrir ferramentas">☰</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside id="sidebar" class="sidebar" aria-label="Miniaturas das páginas">
+        <div class="sidebar-head">
+          <h2>Páginas</h2>
+          <button id="addImagesBtn" class="btn small">+ Imagens</button>
+          <input id="imageInput" type="file" accept="image/*" multiple hidden>
+        </div>
+        <div id="thumbs" class="thumbs" role="list"></div>
+      </aside>
+
+      <section id="viewer" class="viewer" tabindex="0" aria-label="Visualizador de imagem">
+        <div id="stage" class="stage">
+          <div id="transformLayer" class="transform-layer">
+            <img id="pageImage" alt="" draggable="false">
+            <canvas id="annotationCanvas" aria-label="Camada de anotações"></canvas>
+          </div>
+          <div id="loading" class="loading" role="status">Carregando imagem…</div>
+        </div>
+        <nav class="pager" aria-label="Navegação entre páginas">
+          <button id="prevBtn" class="round-btn" aria-label="Página anterior">‹</button>
+          <button id="nextBtn" class="round-btn" aria-label="Próxima página">›</button>
+        </nav>
+        <div class="zoom-strip" aria-label="Controles de ampliação">
+          <button id="zoomOutBtn" class="round-btn small" aria-label="Diminuir zoom">−</button>
+          <input id="zoomRange" type="range" min="50" max="500" value="100" step="10" aria-label="Nível de zoom">
+          <output id="zoomLabel" for="zoomRange">100%</output>
+          <button id="zoomInBtn" class="round-btn small" aria-label="Aumentar zoom">+</button>
+          <button id="fitBtn" class="btn small">Ajustar</button>
+        </div>
+      </section>
+
+      <aside id="toolsPanel" class="tools-panel" aria-label="Ferramentas de estudo">
+        <section class="tool-card">
+          <div class="tool-title"><h2>Anotações</h2><label class="switch"><input id="drawMode" type="checkbox"><span></span><b>Desenhar</b></label></div>
+          <div class="drawing-tools">
+            <label>Cor <input id="penColor" type="color" value="#ffd166"></label>
+            <label>Espessura <input id="penSize" type="range" min="2" max="28" value="6"></label>
+            <button id="eraserBtn" class="btn small">Borracha</button>
+            <button id="undoBtn" class="btn small">Desfazer</button>
+            <button id="clearBtn" class="btn small danger">Limpar</button>
+          </div>
+          <label for="note">Nota da página</label>
+          <textarea id="note" rows="6" placeholder="Digite observações, conceitos-chave ou dúvidas…"></textarea>
+          <div class="save-state" id="saveState" aria-live="polite">Salvo automaticamente</div>
+        </section>
+
+        <section class="tool-card">
+          <h2>Texto reconhecido</h2>
+          <div id="ocrStatus" class="muted">Use OCR para extrair o texto desta imagem.</div>
+          <textarea id="ocrText" rows="8" placeholder="O texto reconhecido aparecerá aqui."></textarea>
+          <div class="row">
+            <button id="readOcrBtn" class="btn small">Ler texto</button>
+            <button id="copyOcrBtn" class="btn small">Copiar</button>
+          </div>
+        </section>
+
+        <section class="tool-card shortcuts">
+          <h2>Atalhos</h2>
+          <p><kbd>←</kbd><kbd>→</kbd> páginas · <kbd>+</kbd><kbd>−</kbd> zoom · <kbd>0</kbd> ajustar · <kbd>D</kbd> desenhar · <kbd>R</kbd> ler</p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <dialog id="pdfDialog">
+    <form method="dialog" class="dialog-card">
+      <h2>Gerar PDF</h2>
+      <p>Escolha o conteúdo do arquivo.</p>
+      <label><input id="pdfAll" type="radio" name="pdfScope" value="all" checked> Todas as páginas</label>
+      <label><input type="radio" name="pdfScope" value="current"> Somente a página atual</label>
+      <label><input id="pdfNotes" type="checkbox" checked> Incluir notas abaixo das imagens</label>
+      <div id="pdfProgress" class="muted" aria-live="polite"></div>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn">Cancelar</button>
+        <button id="confirmPdfBtn" value="default" type="button" class="btn accent">Criar PDF</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js" defer></script>
+</body>
+</html>

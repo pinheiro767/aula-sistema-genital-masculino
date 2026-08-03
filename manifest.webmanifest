@@ -1,0 +1,15 @@
+{
+  "name": "Atlas Imersivo — Sistema Genital Masculino",
+  "short_name": "Atlas Imersivo",
+  "description": "Leitor educacional acessível com zoom, anotações, voz, OCR e PDF.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#111416",
+  "theme_color": "#161a1d",
+  "icons": [
+    {"src":"assets/icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"assets/icons/icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}
